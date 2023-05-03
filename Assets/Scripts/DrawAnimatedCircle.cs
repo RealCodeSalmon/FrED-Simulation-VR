@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class DrawAnimatedCircle : MonoBehaviour
@@ -67,7 +68,7 @@ public class DrawAnimatedCircle : MonoBehaviour
 
     //Function is called from TestCircleGenerator Script
     //Function that handles the animaton of each individual segment that makes up the circle.
-    public IEnumerator AnimateCircle(float animationDuration)
+    public async void AnimateCircle(float animationDuration)
     {
         float segmentDuration = animationDuration / pointCount;
 
@@ -92,8 +93,7 @@ public class DrawAnimatedCircle : MonoBehaviour
 
                 for(int j = i+1; j < pointCount; j++)
                     circleRenderer.SetPosition(j,pos);
-
-                yield return null;
+                await Task.Yield();
             }
         }
     }

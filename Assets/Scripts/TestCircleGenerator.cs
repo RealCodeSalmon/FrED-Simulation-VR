@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
+using System.Threading.Tasks;
 
 public class TestCircleGenerator : MonoBehaviour
 {
+    //Scale Factor;
+    public float widthScale = 0.003f;
+
     //Declare circlePrefab and refPoints
     public GameObject circlePrefab;
     public Transform SpawnPoint;
@@ -14,6 +13,7 @@ public class TestCircleGenerator : MonoBehaviour
 
     //Declare Animation parameters
     public float animDuration = 2f;
+    private int animDurationmili;
     public int nCircles;
     public float deltaZ;
     public float deltaR;
@@ -41,10 +41,14 @@ public class TestCircleGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        SpawnPoint.position = this.transform.position;
         counter = 0;
-        circleWidth = 1f;
+        circleWidth = 1f * widthScale;
         newSpawnPosition = SpawnPoint.position;
-        StartCoroutine(DelayedSpawn(animDuration));
+        animDurationmili = Mathf.CeilToInt(animDuration * 1000);
+        DelayedSpawn(animDurationmili,animDuration);
+        deltaZ *= -widthScale;
+        radius *= widthScale;
     }
 
     // Update is called once per frame
@@ -58,40 +62,42 @@ public class TestCircleGenerator : MonoBehaviour
         if (counter >= nCircles)
         {
             deltaZ = - deltaZ;
-            radius = radius + 1.25f; 
+            radius = (radius + (1.25f * widthScale)); 
             counter = 0;
-            StartCoroutine(DelayedSpawn(animDuration));
+            DelayedSpawn(animDurationmili, animDuration);
         }
     }
 
-    IEnumerator DelayedSpawn(float animT)
+    async void DelayedSpawn(int delayT, float animT)
     {
-        if (counter >= nCircles)
-            yield break;
+        for (int i = 0; i<nCircles; i++) 
+        {
+            if (Application.isPlaying)
+            {
+                await Task.Delay(delayT);
+                print("newCircleCalled");
 
-        yield return new WaitForSeconds(animT);
-        print("newCircleCalled");
+                //Create a new circle Prefab
+                GameObject currentCircle = Instantiate(circlePrefab, SpawnPoint.position, Quaternion.identity);
 
-        //Create a new circle Prefab
-        GameObject currentCircle = Instantiate(circlePrefab, SpawnPoint.position, Quaternion.identity);
-        
-        //Change radius
-        currentCircle.GetComponent<DrawAnimatedCircle>().Radius = radius;
+                //Change radius
+                currentCircle.GetComponent<DrawAnimatedCircle>().Radius = radius;
 
-        //Change width 
-        currentCircle.GetComponent<LineRenderer>().startWidth = circleWidth;
-        currentCircle.GetComponent<LineRenderer>().endWidth = circleWidth;
-        
-        //Call draw function and animation
-        currentCircle.GetComponent<DrawAnimatedCircle>().GenerateCirclePoints();
-        StartCoroutine(currentCircle.GetComponent<DrawAnimatedCircle>().AnimateCircle(animT));
-        
-        //Change next circle position
-        newSpawnPosition = new Vector3(newSpawnPosition.x, newSpawnPosition.y, newSpawnPosition.z + deltaZ);
-        SpawnPoint.position = newSpawnPosition;
-        
-        //Increment counter
-        counter++;
-        StartCoroutine(DelayedSpawn(animDuration));
+                //Change width 
+                currentCircle.GetComponent<LineRenderer>().startWidth = circleWidth;
+                currentCircle.GetComponent<LineRenderer>().endWidth = circleWidth;
+
+                //Call draw function and animation
+                currentCircle.GetComponent<DrawAnimatedCircle>().GenerateCirclePoints();
+                currentCircle.GetComponent<DrawAnimatedCircle>().AnimateCircle(animT);
+
+                //Change next circle position
+                newSpawnPosition = new Vector3(newSpawnPosition.x, newSpawnPosition.y, newSpawnPosition.z + deltaZ);
+                SpawnPoint.position = newSpawnPosition;
+
+                //Increment counter
+                counter++;
+            }
+        }
     }
 }

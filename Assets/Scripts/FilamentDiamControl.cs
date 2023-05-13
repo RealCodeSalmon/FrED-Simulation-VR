@@ -42,12 +42,15 @@ public class FilamentDiamControl : MonoBehaviour
     //Done on EDITOR Slider.OnValueChanged
     public void FillTextBox()
     {
-        
+        //Compensate for scale
+        float compDiam = diameter/scale;
+
+
         //Set textbox to diameter current value
-        dispText.text = diameter.ToString("0.0"); //Format to decimal
+        dispText.text = compDiam.ToString("0.0"); //Format to decimal
 
         //NEW IMPLEMENTATION 
-        LineObject.GetComponent<NewAnimateLine>().EndW = diameter/scale;
+        LineObject.GetComponent<NewAnimateLine>().EndW = diameter;
 
     }
 

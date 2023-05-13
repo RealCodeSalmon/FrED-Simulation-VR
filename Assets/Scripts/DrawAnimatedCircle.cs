@@ -68,7 +68,7 @@ public class DrawAnimatedCircle : MonoBehaviour
 
     //Function is called from TestCircleGenerator Script
     //Function that handles the animaton of each individual segment that makes up the circle.
-    public async void AnimateCircle(float animationDuration)
+    public IEnumerator AnimateCircle(float animationDuration)
     {
         float segmentDuration = animationDuration / pointCount;
 
@@ -93,7 +93,7 @@ public class DrawAnimatedCircle : MonoBehaviour
 
                 for(int j = i+1; j < pointCount; j++)
                     circleRenderer.SetPosition(j,pos);
-                await Task.Yield();
+                yield return null;
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NewAnimateLine : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class NewAnimateLine : MonoBehaviour
 
     //CircleGenerator Reference;
     public GameObject cirGen;
+
+    //Button Reference;
+    public Button adjustButton;
 
     //ControlsManagerReference
     public GameObject ControlsManager;
@@ -55,12 +59,14 @@ public class NewAnimateLine : MonoBehaviour
 
     private async void AnimateLine(float startW, float endW)
     {
+        adjustButton.interactable = false;
         for (int i = 0; i < LineSegments.Length; i++)
         {
             await MoveStartWidth(LineSegments[i], incrementCounts, startW, endW, SegmDelays[i]);
             await MoveEndWidth(LineSegments[i], incrementCounts, startW, endW, SegmDelays[i]);
         }
         cirGen.GetComponent<TestCircleGenerator>().CircleWidht = endW;
+        adjustButton.interactable = true;
     }
 
     private async Task MoveStartWidth(LineRenderer line, int counts, float startW, float endW, int delay)

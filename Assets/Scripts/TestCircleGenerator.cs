@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Threading.Tasks;
+using System.Collections;
 
 public class TestCircleGenerator : MonoBehaviour
 {
@@ -46,7 +47,7 @@ public class TestCircleGenerator : MonoBehaviour
         circleWidth = 1f * widthScale;
         newSpawnPosition = SpawnPoint.position;
         animDurationmili = Mathf.CeilToInt(animDuration * 1000);
-        DelayedSpawn(animDurationmili,animDuration);
+        StartCoroutine(DelayedSpawn(animDuration));
         deltaZ *= -widthScale;
         radius *= widthScale;
     }
@@ -64,18 +65,16 @@ public class TestCircleGenerator : MonoBehaviour
             deltaZ = - deltaZ;
             radius = (radius + (1.25f * widthScale)); 
             counter = 0;
-            DelayedSpawn(animDurationmili, animDuration);
+            StartCoroutine(DelayedSpawn(animDuration));
         }
     }
 
-    async void DelayedSpawn(int delayT, float animT)
+    private IEnumerator DelayedSpawn(float animT)
     {
         for (int i = 0; i<nCircles; i++) 
         {
-            if (Application.isPlaying)
-            {
-                await Task.Delay(delayT);
-                print("newCircleCalled");
+                yield return new WaitForSeconds(animT);
+                //print("newCircleCalled");
 
                 //Create a new circle Prefab
                 GameObject currentCircle = Instantiate(circlePrefab, SpawnPoint.position, Quaternion.identity);
@@ -89,7 +88,7 @@ public class TestCircleGenerator : MonoBehaviour
 
                 //Call draw function and animation
                 currentCircle.GetComponent<DrawAnimatedCircle>().GenerateCirclePoints();
-                currentCircle.GetComponent<DrawAnimatedCircle>().AnimateCircle(animT);
+                StartCoroutine(currentCircle.GetComponent<DrawAnimatedCircle>().AnimateCircle(animT));
 
                 //Change next circle position
                 newSpawnPosition = new Vector3(newSpawnPosition.x, newSpawnPosition.y, newSpawnPosition.z + deltaZ);
@@ -97,7 +96,6 @@ public class TestCircleGenerator : MonoBehaviour
 
                 //Increment counter
                 counter++;
-            }
         }
     }
 }
